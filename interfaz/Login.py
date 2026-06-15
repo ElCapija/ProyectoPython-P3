@@ -1,29 +1,44 @@
 from tkinter import messagebox
-
+from PIL import Image
+from pathlib import Path
 import customtkinter as ctk
 
 app = ctk.CTk()
 app.geometry("900x500")
 
 # Panel izquierdo
-frame_izq = ctk.CTkFrame(
+panel_izq = ctk.CTkFrame(
     app,
     fg_color="#8A1E1E"  # Rojo
 )
 # El método pack() se utiliza para organizar los widgets en el contenedor. En este caso, se indica que el panel izquierdo se coloque en el lado izquierdo del contenedor principal (app) y que ocupe todo el espacio disponible tanto horizontal como verticalmente (fill="both", expand=True).
-frame_izq.pack(side="left", fill="both", expand=True)
+panel_izq.pack(side="left", fill="both", expand=True)
+
+
+logo = ctk.CTkImage(
+      light_image=Image.open("../Imagenes/Imagen_Banco.png"),
+      dark_image=Image.open("../Imagenes/Imagen_Banco.png"),
+        size=(300, 200)
+)
+logo_label = ctk.CTkLabel(
+    panel_izq,
+    image=logo,
+    text=""
+)
+
+logo_label.place(x= 80, y=150)
 
 # Panel derecho
-frame_der = ctk.CTkFrame(
+panel_der = ctk.CTkFrame(
     app,
     fg_color="#FFFFFF"  # Blanco
 )
 # El método pack() se utiliza para organizar los widgets en el contenedor. En este caso, se indica que el panel derecho se coloque en el lado derecho del contenedor principal (app) y que ocupe todo el espacio disponible tanto horizontal como verticalmente (fill="both", expand=True).
-frame_der.pack(side="right", fill="both", expand=True)
+panel_der.pack(side="right", fill="both", expand=True)
 
 # Título en el panel izquierdo
 label_izq = ctk.CTkLabel(
-    frame_izq,
+    panel_izq,
     text="Bienvenido a al Banco Universitario de Costa Rica",
     font=("Times New Roman", 18, "bold"), # Fuente personalizada, con tamaño y estilo
     text_color="#FFFFFF"  # Blanco
@@ -33,7 +48,7 @@ label_izq.place(x = 35, y = 150)
 
 # Panel de login en el panel derecho
 panel_login = ctk.CTkFrame(
-    frame_der,
+    panel_der,
     fg_color="#C4C2C2",  # Blanco
     width=400,
     height=250
@@ -59,7 +74,9 @@ Num_Cuenta = ctk.CTkEntry(
     placeholder_text="Número de Cuenta",
     fg_color="#FFFFFF",  # Blanco
     border_color="#81E0FD",
-    text_color="#000000"
+    text_color="#000000",
+    width=250,
+    height=29,
 )
 Num_Cuenta.pack(pady=10) #
 
@@ -69,10 +86,24 @@ Contraseña = ctk.CTkEntry(
     fg_color="#FFFFFF",  # Blanco
     border_color="#81E0FD",
     text_color="#000000",
-    show="*"
+    show="*",
+    width=250,
+    height=29,
 )
 Contraseña.pack(pady=10)
 
+Salir = ctk.CTkButton(
+    panel_der,
+    text="Salir",
+    fg_color="#8A1E1E",  # Rojo
+    text_color="#FFFFFF",  # Blanco
+    hover_color="#A82323",
+    command=app.destroy
+)
+Salir.pack(
+    side="bottom",
+    pady=60
+)
 def iniciar_sesion():
     numero_cuenta = Num_Cuenta.get()
     contraseña = Contraseña.get()
@@ -89,9 +120,10 @@ Iniciar_Sesion = ctk.CTkButton(
     text="Iniciar Sesión",
     fg_color="#8A1E1E",  # Rojo
     text_color="#FFFFFF",  # Blanco
-    command=iniciar_sesion
+    command=iniciar_sesion,
+    height= 35
 )
-Iniciar_Sesion.pack(pady=10)
+Iniciar_Sesion.pack(pady=30)
 
 app.mainloop() # Inicia el bucle principal de la aplicación, lo que permite que la ventana se muestre y responda a eventos.
     
