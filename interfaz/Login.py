@@ -16,8 +16,8 @@ panel_izq.pack(side="left", fill="both", expand=True)
 
 
 logo = ctk.CTkImage(
-      light_image=Image.open("../Imagenes/Imagen_Banco.png"),
-      dark_image=Image.open("../Imagenes/Imagen_Banco.png"),
+      light_image=Image.open("Imagenes/Imagen_Banco.png"),
+      dark_image=Image.open("Imagenes/Imagen_Banco.png"),
         size=(300, 200)
 )
 logo_label = ctk.CTkLabel(
