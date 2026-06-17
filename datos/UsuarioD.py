@@ -6,6 +6,8 @@ class UsuarioD:
     #METODO DEPOSITAR
     def depositar(self, numero_cuenta, codigo_cajero, monto):
 
+        conexion = None #se inicializa la conexion en none para evitar errores de conexion fallida al querer cerrar
+
         try:
 
             conexion = Conexion().conectar()
@@ -19,12 +21,14 @@ class UsuarioD:
             conexion.commit() #Guarda el deposito
             return True, None
 
-        except Exception as ex: #captura errores
-            return False, str(ex).split(']')[-1].strip() #muestra el error claro
+        except Exception as ex: #captura errores y los guarda en ex
+            return False, str(ex).split(']')[-1].strip() #muestra el error claro, str(ex) convierte en string, split(']') divide cuando hayan [] y [-1].strip() agarra el ultimo valor y quita espacios
 
         finally: #finally se ejecuta siempre, aunque haya errores
 
-            conexion.close() #cierra conexion
+            if conexion: #if por si no se habia conectado al inicio que no se ejecute el cerrar
+                conexion.close() #cierra conexion
+
 
 
 
@@ -50,12 +54,16 @@ class UsuarioD:
 
         finally:
 
-            conexion.close()       
+            if conexion:
+                conexion.close()       
+
 
 
 
     #METODO CONSULTAR
     def consultar_saldo(self, numero_cuenta):
+
+        conexion = None
 
         try:
             conexion = Conexion().conectar()
@@ -77,12 +85,46 @@ class UsuarioD:
             return False, str(ex)
 
         finally:
-            conexion.close() 
+
+            if conexion:
+                conexion.close() 
 
 
 
-    #METODO HISTORIAL
+
+    #METODO PAGAR SERVICIO
+    def pagar_servicio(self, numero_cuenta, codigo_cajero, servicio, monto):
+
+        conexion = None
+
+        try:
+
+            conexion = Conexion().conectar()
+            cursor = conexion.cursor()
+
+            cursor.execute(
+                "EXEC SP_PagarServicio ?, ?, ?, ?",
+                (numero_cuenta, codigo_cajero, servicio, monto)
+            )
+
+            conexion.commit()
+            return True, None
+
+        except Exception as ex:
+            return False, str(ex).split(']')[-1].strip()
+
+        finally:
+
+            if conexion:
+                conexion.close()
+
+
+
+
+    #METODO HISTORIAL MOVIMIENTOS
     def historial_movimientos(self, numero_cuenta, fecha_inicio, fecha_fin):
+
+        conexion = None
 
         try:
             conexion = Conexion().conectar()
@@ -101,4 +143,6 @@ class UsuarioD:
             return False, str(ex)
 
         finally:
-            conexion.close()
+
+            if conexion:
+                conexion.close()
