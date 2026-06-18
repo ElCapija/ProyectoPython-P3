@@ -10,7 +10,7 @@ class UsuarioD:
 
         try:
 
-            conexion = Conexion().conectar()
+            conexion = Conexion.conectar()
             cursor = conexion.cursor() 
 
             cursor.execute(
@@ -35,9 +35,11 @@ class UsuarioD:
     #METODO RETIRAR
     def retirar(self, numero_cuenta, codigo_cajero, monto):
 
+        conexion = None
+
         try:
 
-            conexion = Conexion().conectar()
+            conexion = Conexion.conectar()
 
             cursor = conexion.cursor()
 
@@ -66,7 +68,7 @@ class UsuarioD:
         conexion = None
 
         try:
-            conexion = Conexion().conectar()
+            conexion = Conexion.conectar()
             cursor = conexion.cursor()
 
             cursor.execute(
@@ -99,7 +101,7 @@ class UsuarioD:
 
         try:
 
-            conexion = Conexion().conectar()
+            conexion = Conexion.conectar()
             cursor = conexion.cursor()
 
             cursor.execute(
@@ -127,7 +129,7 @@ class UsuarioD:
         conexion = None
 
         try:
-            conexion = Conexion().conectar()
+            conexion = Conexion.conectar()
             cursor = conexion.cursor()
 
             cursor.execute(
@@ -147,47 +149,41 @@ class UsuarioD:
             if conexion:
                 conexion.close()
 
-    #METODO PAGAR SERVICIO
 
-    def pagar_servicio(
-        self,
-        numero_cuenta,
-        codigo_cajero,
-        servicio,
-        monto
-    ):
+
+    def obtener_comprobante(self, numero_cuenta):
 
         conexion = None
 
         try:
-
-            conexion = Conexion().conectar()
-
+            conexion = Conexion.conectar()
             cursor = conexion.cursor()
 
-            cursor.execute(
+            cursor.execute("""
+                SELECT TOP 1 
+                    c.nombre,
+                    m.numero_cuenta,
+                    m.codigo_cajero,
+                    tm.descripcion,
+                    m.monto,
+                    m.saldo_anterior,
+                    m.saldo_resultante,
+                    m.fecha
+                FROM Movimientos m
+                INNER JOIN Cuentas cu ON m.numero_cuenta = cu.numero_cuenta
+                INNER JOIN Clientes c ON cu.id_cliente = c.id_cliente
+                INNER JOIN TipoMovimiento tm ON m.id_tipo = tm.id_tipo
+                WHERE m.numero_cuenta = ?
+                ORDER BY m.fecha DESC
+            """, (numero_cuenta,))
+            
+            resultado = cursor.fetchone()
 
-                "EXEC SP_PagarServicio ?, ?, ?, ?",
-
-                (
-                    numero_cuenta,
-                    codigo_cajero,
-                    servicio,
-                    monto
-                )
-
-            )
-
-            conexion.commit()
-
-            return True, "Pago realizado"
+            return True, resultado
 
         except Exception as ex:
-
             return False, str(ex)
 
         finally:
-
             if conexion:
-
                 conexion.close()

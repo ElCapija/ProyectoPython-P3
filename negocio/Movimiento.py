@@ -3,6 +3,8 @@ class Movimiento:
     def __init__(
         self,
         id_movimiento,
+        nombre_cliente,
+        numero_cuenta,
         codigo_cajero,
         tipo,
         servicio,
@@ -12,7 +14,10 @@ class Movimiento:
         fecha
     ):
 
+        #Parametros
         self.__id_movimiento = id_movimiento
+        self.__nombre_cliente = nombre_cliente
+        self.__numero_cuenta = numero_cuenta
         self.__codigo_cajero = codigo_cajero
         self.__tipo = tipo
         self.__servicio = servicio
@@ -23,9 +28,16 @@ class Movimiento:
 
 
     # GETTERS
-
     def get_id_movimiento(self):
         return self.__id_movimiento
+
+
+    def get_nombre_cliente(self):
+        return self.__nombre_cliente
+
+
+    def get_numero_cuenta(self):
+        return self.__numero_cuenta
 
 
     def get_codigo_cajero(self):

@@ -267,15 +267,15 @@ def abrir_menu(numero_cuenta):
 
                 messagebox.showinfo("Éxito", "Depósito realizado correctamente")
 
+                exito2, mov = cuenta.obtener_comprobante()
+
+                if exito2:
+
+                    mostrar_comprobante(mov)
+
             else:
 
                 messagebox.showerror("Error", mensaje)
-
-            exito2, mov = cuenta.ultimo_movimiento()
-
-            if exito2:
-
-                mostrar_comprobante(mov)
 
         ctk.CTkButton(
             contenido,
@@ -325,6 +325,12 @@ def abrir_menu(numero_cuenta):
             if exito:
 
                 messagebox.showinfo("Éxito", "Retiro realizado correctamente")
+
+                exito2, mov = cuenta.obtener_comprobante()
+
+                if exito2:
+
+                    mostrar_comprobante(mov)
 
             else:
                 messagebox.showerror("Error", mensaje)
@@ -477,6 +483,13 @@ def abrir_menu(numero_cuenta):
             exito,mensaje = cuenta.pagar_servicio(cajero_actual, servicio, float(monto_pago))
             if exito:
                 messagebox.showinfo("Éxito", f"Pago de {servicio} realizado correctamente")
+
+                exito2, mov = cuenta.obtener_comprobante()
+
+                if exito2:
+
+                    mostrar_comprobante(mov)
+
             else:
 
                 messagebox.showerror("Error",mensaje)
