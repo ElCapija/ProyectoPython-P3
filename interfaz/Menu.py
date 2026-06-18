@@ -124,6 +124,40 @@ def abrir_menu(numero_cuenta):
         barra_menu.entryconfig("Pago de Servicios", state="normal")
 
         mostrar_inicio()
+        
+    def mostrar_comprobante(mov):
+
+        ventana = ctk.CTkToplevel()
+
+        ventana.title("Comprobante")
+
+        ventana.geometry("400x350")
+
+        texto = f"""
+        COMPROBANTE
+        Movimiento: {mov.get_id_movimiento()}
+        Fecha:
+        {mov.get_fecha()}
+        Cajero:
+        {mov.get_codigo_cajero()}
+        Tipo:
+        {mov.get_tipo()}
+        Servicio:
+        {mov.get_servicio()}
+        Monto:
+        ₡{mov.get_monto()}
+        Saldo anterior:
+        ₡{mov.get_saldo_anterior()}
+        Saldo actual:
+        ₡{mov.get_saldo_resultante()}
+        """
+
+        ctk.CTkLabel(
+            ventana,
+            text=texto,
+            justify="left",
+            font=("Consolas",14)
+        ).pack(padx=20, pady=20)
 
     # SELECCIÓN DE CAJERO
     def seleccionar_cajero():
@@ -236,6 +270,12 @@ def abrir_menu(numero_cuenta):
             else:
 
                 messagebox.showerror("Error", mensaje)
+
+            exito2, mov = cuenta.ultimo_movimiento()
+
+            if exito2:
+
+                mostrar_comprobante(mov)
 
         ctk.CTkButton(
             contenido,
