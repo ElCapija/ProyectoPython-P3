@@ -21,9 +21,6 @@ class Cuenta:
         return self.__cliente
     
 
-
-
-
     #METODOS DE LOGICA
 
     #METODO DEPOSITAR
@@ -77,14 +74,7 @@ class Cuenta:
 
         return True, movimientos #retorno final con la lista llena de objetos para mostrar en interfaz
 
-
-
     #METODO PAGAR SERVICIO
     def pagar_servicio(self, codigo_cajero, servicio, monto):
 
-        return self.__usuarioD.pagar_servicio(
-            self.__numero_cuenta,
-            codigo_cajero,
-            servicio,
-            monto
-        )
+        return self.__usuarioD.pagar_servicio(self.__numero_cuenta, codigo_cajero, servicio, monto)

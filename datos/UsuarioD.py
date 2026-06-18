@@ -146,3 +146,48 @@ class UsuarioD:
 
             if conexion:
                 conexion.close()
+
+    #METODO PAGAR SERVICIO
+
+    def pagar_servicio(
+        self,
+        numero_cuenta,
+        codigo_cajero,
+        servicio,
+        monto
+    ):
+
+        conexion = None
+
+        try:
+
+            conexion = Conexion().conectar()
+
+            cursor = conexion.cursor()
+
+            cursor.execute(
+
+                "EXEC SP_PagarServicio ?, ?, ?, ?",
+
+                (
+                    numero_cuenta,
+                    codigo_cajero,
+                    servicio,
+                    monto
+                )
+
+            )
+
+            conexion.commit()
+
+            return True, "Pago realizado"
+
+        except Exception as ex:
+
+            return False, str(ex)
+
+        finally:
+
+            if conexion:
+
+                conexion.close()

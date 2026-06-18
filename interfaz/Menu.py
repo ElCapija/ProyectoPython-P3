@@ -1,9 +1,14 @@
 import customtkinter as ctk
+from tkinter import messagebox
 from PIL import Image
 from tkinter import Menu as TkMenu
 from tkcalendar import DateEntry
+from negocio.Cuenta import Cuenta
+from negocio.Movimiento import Movimiento
 
-def abrir_menu():
+def abrir_menu(numero_cuenta):
+
+    cuenta_actual = numero_cuenta
 
     ctk.set_appearance_mode("light")
 
@@ -20,8 +25,8 @@ def abrir_menu():
     header.pack(fill="x")
 
     logo = ctk.CTkImage(
-        light_image=Image.open("../Imagenes/Imagen_Banco.png"),
-        dark_image=Image.open("../Imagenes/Imagen_Banco.png"),
+        light_image=Image.open("Imagenes/Imagen_Banco.png"),
+        dark_image=Image.open("Imagenes/Imagen_Banco.png"),
         size=(60, 60)
     )
 
@@ -42,10 +47,7 @@ def abrir_menu():
 
     titulo_banco.pack(side="left", padx=10)
 
-    # ==========================
     # BARRA DE MENÚ
-    # ==========================
-
     barra_menu = TkMenu(menu_principal)
 
     menu_principal.config(menu=barra_menu)
@@ -66,53 +68,103 @@ def abrir_menu():
     sistema_menu = TkMenu(barra_menu, tearoff=0)
     barra_menu.add_cascade(label="Sistema", menu=sistema_menu)
 
-    # ==========================
-    # PANEL DE CONTENIDO
-    # ==========================
+    #Deshabilitar opciones hasta seleccionar cajero
+    barra_menu.entryconfig("Cuenta", state="disabled")
+    barra_menu.entryconfig("Movimientos", state="disabled")
+    barra_menu.entryconfig("Pago de Servicios", state="disabled")
 
+    # PANEL DE CONTENIDO
     contenido = ctk.CTkFrame(
         menu_principal,
-        fg_color="#F5F5F5"
+        fg_color="#F5F5F5",
     )
 
     contenido.pack(fill="both", expand=True)
+
+    cajero_actual = ""
+    cuenta_actual = numero_cuenta
 
     def limpiar_contenido():
         for widget in contenido.winfo_children():
             widget.destroy()
 
-    # ==========================
-    # PANTALLA INICIO
-    # ==========================
-
-    # ==========================
-# PANTALLA INICIO
-# ==========================
 
     def mostrar_inicio():
 
         limpiar_contenido()
 
-    titulo = ctk.CTkLabel(
-        contenido,
-        text="Bienvenido al Sistema Bancario",
-        font=("Arial", 30, "bold")
-    )
-    titulo.pack(pady=80)
+        titulo = ctk.CTkLabel(
+            contenido,
+            text="Bienvenido al Sistema Bancario",
+            font=("Arial", 30, "bold")
+        )
+        titulo.pack(pady=80)
 
-    subtitulo = ctk.CTkLabel(
-        contenido,
-        text="Seleccione una opción del menú superior para comenzar.",
-        font=("Arial", 18)
-    )
-    subtitulo.pack()
-    # ==========================
+        subtitulo = ctk.CTkLabel(
+            contenido,
+            text="Seleccione una opción del menú superior para comenzar.",
+            font=("Arial", 18)
+        )
+        subtitulo.pack()
+
+        ctk.CTkLabel(
+            contenido,
+            text=f"Cajero seleccionado: {cajero_actual}",
+            font=("Arial", 18)
+        ).pack(pady=10)
+
+
+    def iniciar_menu(cajero):
+
+        nonlocal cajero_actual
+        cajero_actual = cajero
+
+        barra_menu.entryconfig("Cuenta", state="normal")
+        barra_menu.entryconfig("Movimientos", state="normal")
+        barra_menu.entryconfig("Pago de Servicios", state="normal")
+
+        mostrar_inicio()
+
+    # SELECCIÓN DE CAJERO
+    def seleccionar_cajero():
+
+        limpiar_contenido()
+
+        titulo = ctk.CTkLabel(
+            contenido,
+            text="Seleccione un Cajero",
+            font=("Arial", 28, "bold")
+        )
+        titulo.pack(pady=40)
+
+        ctk.CTkButton(
+            contenido,
+            text="Cajero 1",
+            width=250,
+            command=lambda: iniciar_menu("001")
+        ).pack(pady=10)
+        ctk.CTkButton(
+            contenido,
+            text="Cajero 2",
+            width=250,
+            command=lambda: iniciar_menu("002")
+        ).pack(pady=10)
+
+        ctk.CTkButton(
+            contenido,
+            text="Cajero 3",
+            width=250,
+            command=lambda: iniciar_menu("003")
+        ).pack(pady=10)
+
     # CONSULTAR SALDO
-    # ==========================
-
     def consultar_saldo():
 
         limpiar_contenido()
+
+        cuenta = Cuenta(cuenta_actual, None)
+
+        exito, saldo = cuenta.consultar_saldo()
 
         titulo = ctk.CTkLabel(
             contenido,
@@ -122,18 +174,25 @@ def abrir_menu():
 
         titulo.pack(pady=20)
 
-        saldo = ctk.CTkLabel(
-            contenido,
-            text="Saldo actual: ₡0",
-            font=("Arial", 18)
-        )
+        if exito:
 
-        saldo.pack(pady=10)
+            saldo_label = ctk.CTkLabel(
+                contenido,
+                text=f"Saldo actual: ₡{saldo}",
+                font=("Arial", 18)
+            )
 
-    # ==========================
+        else:
+
+            saldo_label = ctk.CTkLabel(
+                contenido,
+                text=f"Error: {saldo}",
+                font=("Arial", 18)
+            )
+
+        saldo_label.pack(pady=10)
+
     # DEPOSITAR
-    # ==========================
-
     def depositar():
 
         limpiar_contenido()
@@ -154,15 +213,37 @@ def abrir_menu():
 
         monto.pack(pady=10)
 
+        def confirmar_deposito():
+
+            monto_deposito = monto.get()
+
+            if monto_deposito == "":
+
+                messagebox.showerror("Error", "Ingrese un monto")
+                return
+
+            cuenta = Cuenta(cuenta_actual, None)
+            print(cajero_actual)
+            exito, mensaje = cuenta.depositar(
+                cajero_actual,
+                float(monto_deposito)
+            )
+
+            if exito:
+
+                messagebox.showinfo("Éxito", "Depósito realizado correctamente")
+
+            else:
+
+                messagebox.showerror("Error", mensaje)
+
         ctk.CTkButton(
             contenido,
-            text="Confirmar"
+            text="Confirmar",
+            command=confirmar_deposito
         ).pack(pady=20)
 
-    # ==========================
     # RETIRAR
-    # ==========================
-
     def retirar():
 
         limpiar_contenido()
@@ -183,15 +264,38 @@ def abrir_menu():
 
         monto.pack(pady=10)
 
+        def confirmar_retiro():
+
+            monto_retiro = monto.get()
+
+            if monto_retiro == "":
+
+                messagebox.showerror("Error", "Ingrese un monto")
+                return
+
+
+            cuenta = Cuenta(cuenta_actual, None)
+
+            exito, mensaje = cuenta.retirar(
+                cajero_actual,
+                float(monto_retiro)
+            )
+
+
+            if exito:
+
+                messagebox.showinfo("Éxito", "Retiro realizado correctamente")
+
+            else:
+                messagebox.showerror("Error", mensaje)
+
         ctk.CTkButton(
             contenido,
-            text="Confirmar"
+            text="Confirmar",
+            command=confirmar_retiro
         ).pack(pady=20)
 
-    # ==========================
-    # HISTORIAL
-    # ==========================
-
+    # HISTORIAL DE MOVIMIENTOS
     def historial():
 
         limpiar_contenido()
@@ -201,207 +305,163 @@ def abrir_menu():
             text="Historial de Movimientos",
             font=("Arial", 24, "bold")
         )
+
         titulo.pack(pady=20)
 
-        try:
+        ctk.CTkLabel(
+            contenido,
+            text="Fecha inicio"
+        ).pack(pady=5)
 
-            ctk.CTkLabel(
-                contenido,
-                text="Fecha inicio"
-            ).pack()
+        fecha_inicio = DateEntry(
+            contenido,
+            date_pattern='yyyy-mm-dd'
+        )
 
-            fecha_inicio = DateEntry(
-                contenido,
-                width=20,
-                date_pattern="dd/mm/yyyy"
+        fecha_inicio.pack(pady=5)
+
+        ctk.CTkLabel(
+            contenido,
+            text="Fecha fin"
+        ).pack(pady=5)
+
+        fecha_fin = DateEntry(
+            contenido,
+            date_pattern='yyyy-mm-dd'
+        )
+
+        fecha_fin.pack(pady=5)
+
+        frame_resultados = ctk.CTkScrollableFrame(
+            contenido,
+            width=700,
+            height=300
+        )
+
+        def buscar_historial():
+
+            inicio = fecha_inicio.get()
+            fin = fecha_fin.get()
+
+            cuenta = Cuenta(cuenta_actual, None)
+
+            exito, movimientos = cuenta.historial_movimientos(
+                inicio,
+                fin
             )
-            fecha_inicio.pack(pady=10)
 
-            ctk.CTkLabel(
-                contenido,
-                text="Fecha final"
-            ).pack()
+            # Limpia resultados anteriores
+            for widget in frame_resultados.winfo_children():
 
-            fecha_fin = DateEntry(
-                contenido,
-                width=20,
-                date_pattern="dd/mm/yyyy"
-            )
-            fecha_fin.pack(pady=10)
+                widget.destroy()
 
-            resultado = ctk.CTkTextbox(
-                contenido,
-                width=700,
-                height=250,
-                fg_color="white",
-                text_color="black",
-                border_color="#8A1E1E",
-                border_width=2
-            )
-            resultado.pack(pady=20)
+            if exito:
 
-            def buscar():
+                if len(movimientos) == 0:
 
-                fecha1 = fecha_inicio.get()
-                fecha2 = fecha_fin.get()
+                    ctk.CTkLabel(
+                        frame_resultados,
+                        text="No hay movimientos en ese rango de fechas."
+                    ).pack(pady=10)
 
-                resultado.delete("1.0", "end")
+                    return
 
-                resultado.insert(
-                    "1.0",
-                    f"Buscando movimientos desde {fecha1} hasta {fecha2}\n\n"
-                    "Aquí aparecerán los resultados de SQL Server."
+                for mov in movimientos:
+
+                    texto = (
+                        f"ID: {mov.get_id_movimiento()}\n"
+                        f"Cajero: {mov.get_codigo_cajero()}\n"
+                        f"Tipo: {mov.get_tipo()}\n"
+                        f"Monto: ₡{mov.get_monto()}\n"
+                        f"Saldo anterior: ₡{mov.get_saldo_anterior()}\n"
+                        f"Saldo resultante: ₡{mov.get_saldo_resultante()}\n"
+                        f"Fecha: {mov.get_fecha()}"
+                    )
+
+                    tarjeta = ctk.CTkFrame(frame_resultados)
+
+                    tarjeta.pack(
+                        fill="x",
+                        padx=10,
+                        pady=8
+                    )
+
+
+                    ctk.CTkLabel(
+                        tarjeta,
+                        text=texto,
+                        justify="left",
+                        anchor="w"
+                    ).pack(
+                        padx=10,
+                        pady=10,
+                        anchor="w"
+                    )
+
+            else:
+
+                messagebox.showerror(
+                    "Error",
+                    movimientos
                 )
 
-                ctk.CTkButton(
-                    contenido,
-                    text="Buscar",
-                    command=buscar,
-                    fg_color="#8A1E1E",
-                    hover_color="#A82323",
-                    text_color="white"
-                ).pack(pady=15)
+        ctk.CTkButton(
+            contenido,
+            text="Buscar",
+            command=buscar_historial
+        ).pack(pady=10)
 
-        except Exception as e:
+        frame_resultados.pack(
+            pady=20,
+            fill="both",
+            expand=True
+        )
 
-            error = ctk.CTkLabel(
-                contenido,
-                text=f"Error cargando DateEntry:\n{e}",
-                text_color="red"
-            )
-            error.pack(pady=20)
+    def pagar_servicio(servicio):
 
-            print("ERROR DATEENTRY:", e)
+        limpiar_contenido()
 
+        titulo = ctk.CTkLabel(contenido, text=f"Pago de {servicio}", font=("Arial",24,"bold"))
+        titulo.pack(pady=20)
 
-    # ==========================
-    # PAGO DE AGUA
-    # ==========================
+        monto = ctk.CTkEntry(contenido, placeholder_text="Monto a pagar", width=250)
+        monto.pack(pady=10)
+
+        def confirmar_pago():
+            monto_pago = monto.get()
+            if monto_pago=="":
+
+                messagebox.showerror("Error","Ingrese un monto")
+                return
+            cuenta = Cuenta(cuenta_actual, None)
+            exito,mensaje = cuenta.pagar_servicio(cajero_actual, servicio, float(monto_pago))
+            if exito:
+                messagebox.showinfo("Éxito", f"Pago de {servicio} realizado correctamente")
+            else:
+
+                messagebox.showerror("Error",mensaje)
+        ctk.CTkButton(contenido, text="Confirmar", command=confirmar_pago).pack(pady=20)
 
     def pago_agua():
 
-        limpiar_contenido()
+        pagar_servicio("Agua")
 
-        ctk.CTkLabel(
-            contenido,
-            text="Pago de Agua",
-            font=("Arial", 24, "bold")
-        ).pack(pady=20)
-
-        ctk.CTkEntry(
-            contenido,
-            placeholder_text="Número de abonado",
-            width=250
-        ).pack(pady=10)
-
-        ctk.CTkEntry(
-            contenido,
-            placeholder_text="Monto",
-            width=250
-        ).pack(pady=10)
-
-        ctk.CTkButton(
-            contenido,
-            text="Pagar"
-        ).pack(pady=20)
-
-    # ==========================
-    # PAGO DE ELECTRICIDAD
-    # ==========================
 
     def pago_electricidad():
 
-        limpiar_contenido()
+        pagar_servicio("Luz")
 
-        ctk.CTkLabel(
-            contenido,
-            text="Pago de Electricidad",
-            font=("Arial", 24, "bold")
-        ).pack(pady=20)
-
-        ctk.CTkEntry(
-            contenido,
-            placeholder_text="Número de contrato",
-            width=250
-        ).pack(pady=10)
-
-        ctk.CTkEntry(
-            contenido,
-            placeholder_text="Monto",
-            width=250
-        ).pack(pady=10)
-
-        ctk.CTkButton(
-            contenido,
-            text="Pagar"
-        ).pack(pady=20)
-
-    # ==========================
-    # PAGO DE INTERNET
-    # ==========================
 
     def pago_internet():
 
-        limpiar_contenido()
+        pagar_servicio("Internet")
 
-        ctk.CTkLabel(
-            contenido,
-            text="Pago de Internet",
-            font=("Arial", 24, "bold")
-        ).pack(pady=20)
-
-        ctk.CTkEntry(
-            contenido,
-            placeholder_text="Número de cliente",
-            width=250
-        ).pack(pady=10)
-
-        ctk.CTkEntry(
-            contenido,
-            placeholder_text="Monto",
-            width=250
-        ).pack(pady=10)
-
-        ctk.CTkButton(
-            contenido,
-            text="Pagar"
-        ).pack(pady=20)
-
-    # ==========================
-    # PAGO DE TELÉFONO
-    # ==========================
 
     def pago_telefono():
 
-        limpiar_contenido()
-
-        ctk.CTkLabel(
-            contenido,
-            text="Pago de Teléfono",
-            font=("Arial", 24, "bold")
-        ).pack(pady=20)
-
-        ctk.CTkEntry(
-            contenido,
-            placeholder_text="Número telefónico",
-            width=250
-        ).pack(pady=10)
-
-        ctk.CTkEntry(
-            contenido,
-            placeholder_text="Monto",
-            width=250
-        ).pack(pady=10)
-
-        ctk.CTkButton(
-            contenido,
-            text="Pagar"
-        ).pack(pady=20)
-
-    # ==========================
+        pagar_servicio("Telefono")
+        
     # OPCIONES DEL MENÚ
-    # ==========================
-
     cuenta_menu.add_command(
         label="Consultar saldo",
         command=consultar_saldo
@@ -447,7 +507,6 @@ def abrir_menu():
         command=menu_principal.destroy
     )
 
-    mostrar_inicio()
-
+    seleccionar_cajero()
     if __name__ == "__main__":
         abrir_menu()

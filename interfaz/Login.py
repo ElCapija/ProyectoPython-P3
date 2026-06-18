@@ -1,21 +1,17 @@
 from tkinter import messagebox
 from PIL import Image
 import customtkinter as ctk
-import Menu
+from interfaz import Menu
+from datos.Conexion import Conexion
 
 # ==========================
 # VENTANA PRINCIPAL
 # ==========================
-
 app = ctk.CTk()
-print ("Bienvenido al Banco Universitario de Costa Rica")  # Mensaje de bienvenida en la consola
 app.geometry("900x500")
 app.title("Banco Universitario")
 
-# ==========================
 # PANEL IZQUIERDO
-# ==========================
-
 panel_izq = ctk.CTkFrame(
     app,
     fg_color="#8A1E1E"
@@ -24,11 +20,10 @@ panel_izq.pack(side="left", fill="both", expand=True)
 
 # Logo
 logo = ctk.CTkImage(
-    light_image=Image.open("../Imagenes/Imagen_Banco.png"),
-    dark_image=Image.open("../Imagenes/Imagen_Banco.png"),
+    light_image=Image.open("Imagenes/Imagen_Banco.png"),
+    dark_image=Image.open("Imagenes/Imagen_Banco.png"),
     size=(300, 200)
 )
-
 logo_label = ctk.CTkLabel(
     panel_izq,
     image=logo,
@@ -46,10 +41,8 @@ label_izq = ctk.CTkLabel(
 
 label_izq.place(x=35, y=120)
 
-# ==========================
-# PANEL DERECHO
-# ==========================
 
+# PANEL DERECHO
 panel_der = ctk.CTkFrame(
     app,
     fg_color="#FFFFFF"
@@ -61,10 +54,7 @@ panel_der.pack(
     expand=True
 )
 
-# ==========================
 # PANEL LOGIN
-# ==========================
-
 panel_login = ctk.CTkFrame(
     panel_der,
     fg_color="#C4C2C2",
@@ -81,10 +71,7 @@ panel_login.place(
 
 panel_login.pack_propagate(False)
 
-# ==========================
 # TÍTULO LOGIN
-# ==========================
-
 Titulo_login = ctk.CTkLabel(
     panel_login,
     text="Iniciar Sesión",
@@ -94,10 +81,7 @@ Titulo_login = ctk.CTkLabel(
 
 Titulo_login.pack(pady=10)
 
-# ==========================
 # NÚMERO DE CUENTA
-# ==========================
-
 Num_Cuenta = ctk.CTkEntry(
     panel_login,
     placeholder_text="Número de Cuenta",
@@ -110,10 +94,7 @@ Num_Cuenta = ctk.CTkEntry(
 
 Num_Cuenta.pack(pady=10)
 
-# ==========================
 # CONTRASEÑA
-# ==========================
-
 Contraseña = ctk.CTkEntry(
     panel_login,
     placeholder_text="Contraseña",
@@ -127,33 +108,29 @@ Contraseña = ctk.CTkEntry(
 
 Contraseña.pack(pady=10)
 
-# ==========================
 # FUNCIÓN LOGIN
-# ==========================
-
 def iniciar_sesion():
 
     numero_cuenta = Num_Cuenta.get().strip()
     contraseña = Contraseña.get().strip()
 
     if not numero_cuenta or not contraseña:
-
-        messagebox.showerror(
-            title="Error",
-            message="Por favor ingrese su número de cuenta y contraseña."
-        )
-
+        messagebox.showerror("Error", "Ingrese todos los datos")
         return
 
-    # AQUÍ DESPUÉS VA LA VALIDACIÓN CON SQL SERVER
+    conexiond = Conexion.conectar(
+    numero_cuenta,
+    contraseña
+)
+    if conexiond is not None:
+        messagebox.showinfo("Éxito", "Inicio de sesión correcto")
+        app.withdraw()
+        Menu.abrir_menu(numero_cuenta)
+    else:
+        messagebox.showerror("Error", "Usuario o contraseña incorrectos")
 
-    app.withdraw()
-    Menu.abrir_menu()
 
-# ==========================
 # BOTÓN INICIAR SESIÓN
-# ==========================
-
 Iniciar_Sesion = ctk.CTkButton(
     panel_login,
     text="Iniciar Sesión",
@@ -166,10 +143,7 @@ Iniciar_Sesion = ctk.CTkButton(
 
 Iniciar_Sesion.pack(pady=20)
 
-# ==========================
 # BOTÓN SALIR
-# ==========================
-
 Salir = ctk.CTkButton(
     panel_der,
     text="Salir",
@@ -184,9 +158,5 @@ Salir.pack(
     pady=60
 )
 
-# ==========================
 # EJECUTAR APP
-# ==========================
-
-print ("Iniciando la aplicación...")  # Mensaje de inicio en la consola
 app.mainloop()

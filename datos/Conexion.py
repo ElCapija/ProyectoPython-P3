@@ -2,14 +2,32 @@ import pyodbc
 
 class Conexion:
 
-    def conectar(self):
+    usuario_actual = None
+    contraseña_actual = None
 
-        conexion = pyodbc.connect(
-            "DRIVER={ODBC Driver 18 for SQL Server};"
-            "SERVER=CARLOSPC\\SQLEXPRESS01;"
-            "DATABASE=Cajeros;"
-            "Trusted_Connection=yes;"
-            "TrustServerCertificate=yes;"
-        )
+    @staticmethod
+    def conectar(usuario=None, contraseña=None):
 
-        return conexion
+        if usuario:
+            Conexion.usuario_actual = usuario
+
+        if contraseña:
+            Conexion.contraseña_actual = contraseña
+
+        try:
+
+            conn = pyodbc.connect(
+                "DRIVER={ODBC Driver 18 for SQL Server};"
+                "SERVER=(localdb)\\MSSQLLocalDB;"
+                "DATABASE=Cajeros;"
+                f"UID={Conexion.usuario_actual};"
+                f"PWD={Conexion.contraseña_actual};"
+                "TrustServerCertificate=yes;"
+            )
+
+            return conn
+
+        except Exception as ex:
+
+            print(ex)
+            return None
