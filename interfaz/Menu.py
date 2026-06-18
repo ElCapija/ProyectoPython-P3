@@ -124,7 +124,7 @@ def abrir_menu(numero_cuenta):
         barra_menu.entryconfig("Pago de Servicios", state="normal")
 
         mostrar_inicio()
-        
+
     def mostrar_comprobante(mov):
 
         ventana = ctk.CTkToplevel()
