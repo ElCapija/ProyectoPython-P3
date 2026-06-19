@@ -128,28 +128,21 @@ def abrir_menu(numero_cuenta):
     def mostrar_comprobante(mov):
 
         ventana = ctk.CTkToplevel()
-
         ventana.title("Comprobante")
-
-        ventana.geometry("400x350")
-
+        ventana.geometry("450x400")
+        ventana.grab_set()
+        ventana.focus()
+        fecha = mov.get_fecha().strftime("%d/%m/%Y %H:%M")
         texto = f"""
         COMPROBANTE
         Movimiento: {mov.get_id_movimiento()}
-        Fecha:
-        {mov.get_fecha()}
-        Cajero:
-        {mov.get_codigo_cajero()}
-        Tipo:
-        {mov.get_tipo()}
-        Servicio:
-        {mov.get_servicio()}
-        Monto:
-        ₡{mov.get_monto()}
-        Saldo anterior:
-        ₡{mov.get_saldo_anterior()}
-        Saldo actual:
-        ₡{mov.get_saldo_resultante()}
+        Fecha: {fecha}        
+        Cajero: {mov.get_codigo_cajero()}
+        Tipo: {mov.get_tipo()}
+        Servicio: {mov.get_servicio()}
+        Monto: ₡{mov.get_monto()}
+        Saldo anterior: ₡{mov.get_saldo_anterior()}
+        Saldo actual: ₡{mov.get_saldo_resultante()}
         """
 
         ctk.CTkLabel(
@@ -157,7 +150,14 @@ def abrir_menu(numero_cuenta):
             text=texto,
             justify="left",
             font=("Consolas",14)
-        ).pack(padx=20, pady=20)
+        ).pack(padx=20,pady=20)
+
+        ctk.CTkButton(
+            ventana,
+            text="Cerrar",
+            command=ventana.destroy
+
+    ).pack(pady=15)
 
     # SELECCIÓN DE CAJERO
     def seleccionar_cajero():
@@ -265,17 +265,15 @@ def abrir_menu(numero_cuenta):
 
             if exito:
 
-                messagebox.showinfo("Éxito", "Depósito realizado correctamente")
+                ok, mov = cuenta.obtener_comprobante()
+
+            if ok:
+
+                mostrar_comprobante(mov)
 
             else:
 
-                messagebox.showerror("Error", mensaje)
-
-            exito2, mov = cuenta.ultimo_movimiento()
-
-            if exito2:
-
-                mostrar_comprobante(mov)
+                messagebox.showerror("Error", mov)
 
         ctk.CTkButton(
             contenido,
@@ -321,14 +319,18 @@ def abrir_menu(numero_cuenta):
                 float(monto_retiro)
             )
 
-
             if exito:
 
-                messagebox.showinfo("Éxito", "Retiro realizado correctamente")
+                ok, mov = cuenta.obtener_comprobante()
+
+            if ok:
+
+                mostrar_comprobante(mov)
 
             else:
-                messagebox.showerror("Error", mensaje)
 
+                messagebox.showerror("Error", mov)
+                
         ctk.CTkButton(
             contenido,
             text="Confirmar",
@@ -407,7 +409,7 @@ def abrir_menu(numero_cuenta):
                     return
 
                 for mov in movimientos:
-
+                    fecha = mov.get_fecha().strftime("%d/%m/%Y %H:%M")
                     texto = (
                         f"ID: {mov.get_id_movimiento()}\n"
                         f"Cajero: {mov.get_codigo_cajero()}\n"
@@ -415,7 +417,7 @@ def abrir_menu(numero_cuenta):
                         f"Monto: ₡{mov.get_monto()}\n"
                         f"Saldo anterior: ₡{mov.get_saldo_anterior()}\n"
                         f"Saldo resultante: ₡{mov.get_saldo_resultante()}\n"
-                        f"Fecha: {mov.get_fecha()}"
+                        f"Fecha: {fecha}"
                     )
 
                     tarjeta = ctk.CTkFrame(frame_resultados)
@@ -440,10 +442,7 @@ def abrir_menu(numero_cuenta):
 
             else:
 
-                messagebox.showerror(
-                    "Error",
-                    movimientos
-                )
+                messagebox.showerror("Error", movimientos)
 
         ctk.CTkButton(
             contenido,
@@ -475,12 +474,24 @@ def abrir_menu(numero_cuenta):
                 return
             cuenta = Cuenta(cuenta_actual, None)
             exito,mensaje = cuenta.pagar_servicio(cajero_actual, servicio, float(monto_pago))
+            
             if exito:
-                messagebox.showinfo("Éxito", f"Pago de {servicio} realizado correctamente")
+
+                ok, mov = cuenta.obtener_comprobante()
+
+            if ok:
+
+                mostrar_comprobante(mov)
+
             else:
 
-                messagebox.showerror("Error",mensaje)
-        ctk.CTkButton(contenido, text="Confirmar", command=confirmar_pago).pack(pady=20)
+                messagebox.showerror("Error", mov)
+
+        ctk.CTkButton(
+            contenido,
+            text="Pagar",
+            command=confirmar_pago
+        ).pack(pady=20)
 
     def pago_agua():
 

@@ -21,6 +21,9 @@ class Cuenta:
         return self.__cliente
     
 
+
+
+
     #METODOS DE LOGICA
 
     #METODO DEPOSITAR
@@ -34,6 +37,7 @@ class Cuenta:
     
 
 
+
     #METODO RETIRAR
     def retirar(self, codigo_cajero, monto):
 
@@ -45,12 +49,14 @@ class Cuenta:
     
 
 
+
     #METODO CONSULTAR SALDO
     def consultar_saldo(self):
 
         return self.__usuarioD.consultar_saldo(
             self.__numero_cuenta
         )
+
 
 
 
@@ -74,7 +80,35 @@ class Cuenta:
 
         return True, movimientos #retorno final con la lista llena de objetos para mostrar en interfaz
 
+
+
+
     #METODO PAGAR SERVICIO
     def pagar_servicio(self, codigo_cajero, servicio, monto):
 
         return self.__usuarioD.pagar_servicio(self.__numero_cuenta, codigo_cajero, servicio, monto)
+    
+
+
+
+    #METODO COMPROBANTE
+
+    def obtener_comprobante(self):
+
+        ok, data = self.__usuarioD.obtener_comprobante(self.__numero_cuenta)
+
+        if not ok:
+            return False, data
+
+        mov = Movimiento(
+            data[0],
+            data[1],
+            data[2],
+            data[3],
+            data[4],
+            data[5],
+            data[6],
+            data[7]
+        )
+
+        return True, mov

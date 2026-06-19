@@ -10,7 +10,7 @@ class UsuarioD:
 
         try:
 
-            conexion = Conexion().conectar()
+            conexion = Conexion.conectar()
             cursor = conexion.cursor() 
 
             cursor.execute(
@@ -35,9 +35,11 @@ class UsuarioD:
     #METODO RETIRAR
     def retirar(self, numero_cuenta, codigo_cajero, monto):
 
+        conexion = None
+
         try:
 
-            conexion = Conexion().conectar()
+            conexion = Conexion.conectar()
 
             cursor = conexion.cursor()
 
@@ -66,7 +68,7 @@ class UsuarioD:
         conexion = None
 
         try:
-            conexion = Conexion().conectar()
+            conexion = Conexion.conectar()
             cursor = conexion.cursor()
 
             cursor.execute(
@@ -87,10 +89,33 @@ class UsuarioD:
         finally:
 
             if conexion:
-                conexion.close() 
+                conexion.close()
 
+    #METODO HISTORIAL MOVIMIENTOS
+    def historial_movimientos(self, numero_cuenta, fecha_inicio, fecha_fin):
 
+        conexion = None
 
+        try:
+            conexion = Conexion.conectar()
+            cursor = conexion.cursor()
+
+            cursor.execute(
+                "EXEC SP_HistorialMovimientos ?, ?, ?", 
+                (numero_cuenta, fecha_inicio, fecha_fin)
+            )
+
+            datos = cursor.fetchall() #obtiene todas las filas
+
+            return True, datos
+
+        except Exception as ex:
+            return False, str(ex)
+
+        finally:
+
+            if conexion:
+                conexion.close()
 
     #METODO PAGAR SERVICIO
     def pagar_servicio(self, numero_cuenta, codigo_cajero, servicio, monto):
@@ -99,7 +124,7 @@ class UsuarioD:
 
         try:
 
-            conexion = Conexion().conectar()
+            conexion = Conexion.conectar()
             cursor = conexion.cursor()
 
             cursor.execute(
@@ -122,40 +147,7 @@ class UsuarioD:
 
 
     #METODO HISTORIAL MOVIMIENTOS
-    def historial_movimientos(self, numero_cuenta, fecha_inicio, fecha_fin):
-
-        conexion = None
-
-        try:
-            conexion = Conexion().conectar()
-            cursor = conexion.cursor()
-
-            cursor.execute(
-                "EXEC SP_HistorialMovimientos ?, ?, ?", 
-                (numero_cuenta, fecha_inicio, fecha_fin)
-            )
-
-            datos = cursor.fetchall() #obtiene todas las filas
-
-            return True, datos
-
-        except Exception as ex:
-            return False, str(ex)
-
-        finally:
-
-            if conexion:
-                conexion.close()
-
-    #METODO PAGAR SERVICIO
-
-    def pagar_servicio(
-        self,
-        numero_cuenta,
-        codigo_cajero,
-        servicio,
-        monto
-    ):
+    def obtener_comprobante(self, numero_cuenta):
 
         conexion = None
 
@@ -167,24 +159,21 @@ class UsuarioD:
 
             cursor.execute(
 
-                "EXEC SP_PagarServicio ?, ?, ?, ?",
+                "EXEC SP_ObtenerComprobante ?",
 
-                (
-                    numero_cuenta,
-                    codigo_cajero,
-                    servicio,
-                    monto
-                )
+                (numero_cuenta,)
 
             )
 
-            conexion.commit()
+            resultado = cursor.fetchone()
 
-            return True, "Pago realizado"
+            return True, resultado
+
 
         except Exception as ex:
 
             return False, str(ex)
+
 
         finally:
 
