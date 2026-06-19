@@ -129,35 +129,38 @@ def abrir_menu(numero_cuenta):
 
         ventana = ctk.CTkToplevel()
         ventana.title("Comprobante")
-        ventana.geometry("450x400")
-        ventana.grab_set()
-        ventana.focus()
+        ventana.geometry("450x450")
         fecha = mov.get_fecha().strftime("%d/%m/%Y %H:%M")
-        texto = f"""
-        COMPROBANTE
-        Movimiento: {mov.get_id_movimiento()}
-        Fecha: {fecha}        
-        Cajero: {mov.get_codigo_cajero()}
-        Tipo: {mov.get_tipo()}
-        Servicio: {mov.get_servicio()}
-        Monto: ₡{mov.get_monto()}
-        Saldo anterior: ₡{mov.get_saldo_anterior()}
-        Saldo actual: ₡{mov.get_saldo_resultante()}
-        """
-
+        datos = [
+            ("Movimiento:", mov.get_id_movimiento()),
+            ("Fecha:", fecha),
+            ("Cajero:", mov.get_codigo_cajero()),
+            ("Tipo:", mov.get_tipo()),
+            ("Servicio:", mov.get_servicio()),
+            ("Monto:", f"₡{mov.get_monto():,.2f}"),
+            ("Saldo anterior:", f"₡{mov.get_saldo_anterior():,.2f}"),
+            ("Saldo actual:", f"₡{mov.get_saldo_resultante():,.2f}")
+        ]
         ctk.CTkLabel(
             ventana,
-            text=texto,
-            justify="left",
-            font=("Consolas",14)
-        ).pack(padx=20,pady=20)
+            text="COMPROBANTE",
+            font=("Arial",22,"bold")
+        ).pack(pady=(20,25))
+
+        for titulo, valor in datos:
+            ctk.CTkLabel(
+                ventana,
+                text=f"{titulo} {valor}",
+                font=("Arial",16),
+                anchor="w"
+            ).pack(anchor="w", padx=40, pady=5)
 
         ctk.CTkButton(
             ventana,
             text="Cerrar",
-            command=ventana.destroy
-
-    ).pack(pady=15)
+            command=ventana.destroy,
+            width=120
+        ).pack(pady=25)
 
     # SELECCIÓN DE CAJERO
     def seleccionar_cajero():
