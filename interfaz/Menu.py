@@ -4,7 +4,6 @@ from PIL import Image
 from tkinter import Menu as TkMenu
 from tkcalendar import DateEntry
 from negocio.Cuenta import Cuenta
-from negocio.Movimiento import Movimiento
 
 def abrir_menu(numero_cuenta):
 
@@ -270,13 +269,17 @@ def abrir_menu(numero_cuenta):
 
                 ok, mov = cuenta.obtener_comprobante()
 
-            if ok:
+                if ok:
 
-                mostrar_comprobante(mov)
+                    mostrar_comprobante(mov)
 
+                else:
+
+                    messagebox.showerror("Error", mov)
+                    
             else:
 
-                messagebox.showerror("Error", mov)
+                messagebox.showerror("Error", mensaje)
 
         ctk.CTkButton(
             contenido,
@@ -326,13 +329,17 @@ def abrir_menu(numero_cuenta):
 
                 ok, mov = cuenta.obtener_comprobante()
 
-            if ok:
+                if ok:
 
-                mostrar_comprobante(mov)
+                    mostrar_comprobante(mov)
 
+                else:
+
+                    messagebox.showerror("Error", mov)
+                    
             else:
 
-                messagebox.showerror("Error", mov)
+                messagebox.showerror("Error", mensaje)
                 
         ctk.CTkButton(
             contenido,
@@ -482,13 +489,17 @@ def abrir_menu(numero_cuenta):
 
                 ok, mov = cuenta.obtener_comprobante()
 
-            if ok:
+                if ok:
 
-                mostrar_comprobante(mov)
+                    mostrar_comprobante(mov)
 
+                else:
+
+                    messagebox.showerror("Error", mov)
+                    
             else:
 
-                messagebox.showerror("Error", mov)
+                messagebox.showerror("Error", mensaje)
 
         ctk.CTkButton(
             contenido,

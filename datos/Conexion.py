@@ -18,7 +18,7 @@ class Conexion:
 
             conn = pyodbc.connect(
                 "DRIVER={ODBC Driver 18 for SQL Server};"
-                "SERVER=(localdb)\MSSQLLocalDB;"
+                "SERVER=CARLOSPC\\SQLEXPRESS02;"
                 "DATABASE=Cajeros;"
                 f"UID={Conexion.usuario_actual};"
                 f"PWD={Conexion.contraseña_actual};"

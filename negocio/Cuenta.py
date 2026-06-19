@@ -1,5 +1,5 @@
 from datos.UsuarioD import UsuarioD
-from negocio.Movimiento import Movimiento
+from negocio.Movimiento import crear_movimiento
 
 
 class Cuenta:
@@ -19,7 +19,6 @@ class Cuenta:
 
     def get_cliente(self):
         return self.__cliente
-    
 
 
 
@@ -34,7 +33,7 @@ class Cuenta:
             codigo_cajero,
             monto
         )
-    
+
 
 
 
@@ -46,7 +45,7 @@ class Cuenta:
             codigo_cajero,
             monto
         )
-    
+
 
 
 
@@ -75,7 +74,7 @@ class Cuenta:
         movimientos = [] #crea lista vacia
 
         for fila in datos: #recorre cada fila SQL
-            movimiento = Movimiento(*fila) # * desempaqueta la tupla que viene del SQL y la guarda como objeto con los valores internos de la clase Movimiento
+            movimiento = crear_movimiento(*fila) # * desempaqueta la tupla que viene del SQL y la guarda como objeto con los valores internos de la clase Movimiento
             movimientos.append(movimiento) #con append lo guarda en la lista movimientos
 
         return True, movimientos #retorno final con la lista llena de objetos para mostrar en interfaz
@@ -87,7 +86,7 @@ class Cuenta:
     def pagar_servicio(self, codigo_cajero, servicio, monto):
 
         return self.__usuarioD.pagar_servicio(self.__numero_cuenta, codigo_cajero, servicio, monto)
-    
+
 
 
 
@@ -100,7 +99,7 @@ class Cuenta:
         if not ok:
             return False, data
 
-        mov = Movimiento(
+        mov = crear_movimiento(
             data[0],
             data[1],
             data[2],
