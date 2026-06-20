@@ -21,8 +21,15 @@ class UsuarioD:
             conexion.commit() #Guarda el deposito
             return True, None
 
-        except Exception as ex: #captura errores y los guarda en ex
-            return False, str(ex).split(']')[-1].strip() #muestra el error claro, str(ex) convierte en string, split(']') divide cuando hayan [] y [-1].strip() agarra el ultimo valor y quita espacios
+        except Exception as ex:
+
+            mensaje = str(ex)
+
+            if "Error" in mensaje:
+
+                mensaje = "Ocurrió un error al procesar la operación"
+
+            return False, mensaje
 
         finally: #finally se ejecuta siempre, aunque haya errores
 
@@ -52,12 +59,24 @@ class UsuarioD:
             return True, None
 
         except Exception as ex:
-            return False, str(ex).split(']')[-1].strip()
+
+            mensaje = str(ex)
+
+            if "Fondos insuficientes" in mensaje:
+
+                mensaje = "Fondos insuficientes"
+
+            elif "Error" in mensaje:
+
+                mensaje = "Ocurrió un error al procesar la operación"
+
+            return False, mensaje
 
         finally:
 
             if conexion:
-                conexion.close()       
+                conexion.close()
+      
 
 
 
@@ -136,7 +155,18 @@ class UsuarioD:
             return True, None
 
         except Exception as ex:
-            return False, str(ex).split(']')[-1].strip()
+
+            mensaje = str(ex)
+
+            if "Fondos insuficientes" in mensaje:
+
+                mensaje = "Fondos insuficientes"
+
+            elif "Error" in mensaje:
+
+                mensaje = "Ocurrió un error al procesar la operación"
+
+            return False, mensaje
 
         finally:
 

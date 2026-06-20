@@ -83,8 +83,11 @@ def abrir_menu(numero_cuenta):
     cajero_actual = ""
     cuenta_actual = numero_cuenta
 
+
     def limpiar_contenido():
+
         for widget in contenido.winfo_children():
+
             widget.destroy()
 
 
@@ -97,6 +100,7 @@ def abrir_menu(numero_cuenta):
             text="Bienvenido al Sistema Bancario",
             font=("Arial", 30, "bold")
         )
+
         titulo.pack(pady=80)
 
         subtitulo = ctk.CTkLabel(
@@ -104,6 +108,7 @@ def abrir_menu(numero_cuenta):
             text="Seleccione una opción del menú superior para comenzar.",
             font=("Arial", 18)
         )
+
         subtitulo.pack()
 
         ctk.CTkLabel(
@@ -113,16 +118,106 @@ def abrir_menu(numero_cuenta):
         ).pack(pady=10)
 
 
+
     def iniciar_menu(cajero):
 
         nonlocal cajero_actual
+
         cajero_actual = cajero
 
-        barra_menu.entryconfig("Cuenta", state="normal")
-        barra_menu.entryconfig("Movimientos", state="normal")
-        barra_menu.entryconfig("Pago de Servicios", state="normal")
+        if cajero == "001":
+            color = "#8A1E1E"
 
+        elif cajero == "002":
+            color = "#91991E"
+
+        else:
+            color = "#1E7D45"
+
+        header.configure(
+            fg_color=color
+        )
+        titulo_banco.configure(
+            text=f"Banco Universitario - Cajero {cajero}"
+        )
+        barra_menu.entryconfig(
+            "Cuenta",
+            state="normal"
+        )
+        barra_menu.entryconfig(
+            "Movimientos",
+            state="normal"
+        )
+        barra_menu.entryconfig(
+            "Pago de Servicios",
+            state="normal"
+        )
         mostrar_inicio()
+
+    def cambiar_cajero():
+
+        nonlocal cajero_actual
+        cajero_actual = ""
+        barra_menu.entryconfig(
+            "Cuenta",
+            state="disabled"
+        )
+        barra_menu.entryconfig(
+            "Movimientos",
+            state="disabled"
+        )
+        barra_menu.entryconfig(
+            "Pago de Servicios",
+            state="disabled"
+        )
+        header.configure(
+            fg_color="#8A1E1E"
+        )
+
+        titulo_banco.configure(
+            text="Banco Universitario de Costa Rica"
+        )
+
+        seleccionar_cajero()
+
+    def seleccionar_cajero():
+
+        limpiar_contenido()
+
+        titulo = ctk.CTkLabel(
+            contenido,
+            text="Seleccione un Cajero",
+            font=("Arial", 28, "bold")
+        )
+
+        titulo.pack(pady=40)
+
+        ctk.CTkButton(
+            contenido,
+            text="Cajero 1",
+            width=250,
+            fg_color="#8A1E1E",
+            hover_color="#6E1818",
+            command=lambda: iniciar_menu("001")
+        ).pack(pady=10)
+
+        ctk.CTkButton(
+            contenido,
+            text="Cajero 2",
+            width=250,
+            fg_color="#91991E",
+            hover_color="#91991E",
+            command=lambda: iniciar_menu("002")
+        ).pack(pady=10)
+
+        ctk.CTkButton(
+            contenido,
+            text="Cajero 3",
+            width=250,
+            fg_color="#1E7D45",
+            hover_color="#155D33",
+            command=lambda: iniciar_menu("003")
+        ).pack(pady=10)
 
     def mostrar_comprobante(mov):
 
@@ -130,11 +225,15 @@ def abrir_menu(numero_cuenta):
         ventana.title("Comprobante")
         ventana.geometry("450x450")
         fecha = mov.get_fecha().strftime("%d/%m/%Y %H:%M")
+        if mov.get_servicio():
+            tipo = f"Pago de {mov.get_servicio()}"
+        else:
+            tipo = mov.get_tipo()
         datos = [
             ("Movimiento:", mov.get_id_movimiento()),
             ("Fecha:", fecha),
             ("Cajero:", mov.get_codigo_cajero()),
-            ("Tipo:", mov.get_tipo()),
+            ("Tipo:", tipo),
             ("Servicio:", mov.get_servicio()),
             ("Monto:", f"₡{mov.get_monto():,.2f}"),
             ("Saldo anterior:", f"₡{mov.get_saldo_anterior():,.2f}"),
@@ -161,37 +260,7 @@ def abrir_menu(numero_cuenta):
             width=120
         ).pack(pady=25)
 
-    # SELECCIÓN DE CAJERO
-    def seleccionar_cajero():
-
-        limpiar_contenido()
-
-        titulo = ctk.CTkLabel(
-            contenido,
-            text="Seleccione un Cajero",
-            font=("Arial", 28, "bold")
-        )
-        titulo.pack(pady=40)
-
-        ctk.CTkButton(
-            contenido,
-            text="Cajero 1",
-            width=250,
-            command=lambda: iniciar_menu("001")
-        ).pack(pady=10)
-        ctk.CTkButton(
-            contenido,
-            text="Cajero 2",
-            width=250,
-            command=lambda: iniciar_menu("002")
-        ).pack(pady=10)
-
-        ctk.CTkButton(
-            contenido,
-            text="Cajero 3",
-            width=250,
-            command=lambda: iniciar_menu("003")
-        ).pack(pady=10)
+    
 
     # CONSULTAR SALDO
     def consultar_saldo():
@@ -255,30 +324,46 @@ def abrir_menu(numero_cuenta):
 
             if monto_deposito == "":
 
-                messagebox.showerror("Error", "Ingrese un monto")
+                messagebox.showerror(
+                    "Error",
+                    "Ingrese un monto"
+                )
                 return
 
-            cuenta = Cuenta(cuenta_actual, None)
-            print(cajero_actual)
+            try:
+                monto_float = float(monto_deposito)
+
+            except:
+                messagebox.showerror(
+                    "Error",
+                    "Ingrese un número válido"
+                )
+                return
+
+            if monto_float <= 0:
+                messagebox.showerror(
+                    "Error",
+                    "El monto debe ser mayor a 0"
+                )
+                return
+            cuenta = Cuenta(
+                cuenta_actual,
+                None
+            )
             exito, mensaje = cuenta.depositar(
                 cajero_actual,
-                float(monto_deposito)
+                monto_float
             )
 
             if exito:
-
+                messagebox.showinfo(
+                    "Éxito",
+                    "Depósito realizado correctamente"
+                )
                 ok, mov = cuenta.obtener_comprobante()
-
                 if ok:
-
                     mostrar_comprobante(mov)
-
-                else:
-
-                    messagebox.showerror("Error", mov)
-                    
             else:
-
                 messagebox.showerror("Error", mensaje)
 
         ctk.CTkButton(
@@ -310,36 +395,60 @@ def abrir_menu(numero_cuenta):
 
         def confirmar_retiro():
 
-            monto_retiro = monto.get()
+            monto_retirar = monto.get()
 
-            if monto_retiro == "":
+            if monto_retirar == "":
+                messagebox.showerror(
+                    "Error",
+                    "Ingrese un monto"
+                )
 
-                messagebox.showerror("Error", "Ingrese un monto")
                 return
 
+            try:
 
-            cuenta = Cuenta(cuenta_actual, None)
+                monto_float = float(monto_retirar)
+
+            except:
+                messagebox.showerror(
+                    "Error",
+                    "Ingrese un número válido"
+                )
+
+                return
+
+            if monto_float <= 0:
+                messagebox.showerror(
+                    "Error",
+                    "El monto debe ser mayor a 0"
+                )
+                return
+
+            cuenta = Cuenta(
+                cuenta_actual,
+                None
+            )
 
             exito, mensaje = cuenta.retirar(
                 cajero_actual,
-                float(monto_retiro)
+                monto_float
             )
 
             if exito:
-
+                messagebox.showinfo(
+                    "Éxito",
+                    "Retiro realizado correctamente"
+                )
                 ok, mov = cuenta.obtener_comprobante()
 
                 if ok:
-
                     mostrar_comprobante(mov)
 
-                else:
-
-                    messagebox.showerror("Error", mov)
-                    
             else:
-
-                messagebox.showerror("Error", mensaje)
+                messagebox.showerror(
+                    "Error",
+                    mensaje
+                )
                 
         ctk.CTkButton(
             contenido,
@@ -395,8 +504,21 @@ def abrir_menu(numero_cuenta):
             inicio = fecha_inicio.get()
             fin = fecha_fin.get()
 
-            cuenta = Cuenta(cuenta_actual, None)
+            from datetime import datetime
 
+            fecha1 = datetime.strptime(
+                inicio,
+                "%Y-%m-%d"
+            )
+            fecha2 = datetime.strptime(
+                fin,
+                "%Y-%m-%d"
+            )
+            if fecha1 > fecha2:
+                messagebox.showerror("Error", "La fecha inicial no puede ser mayor que la fecha final")
+                return
+
+            cuenta = Cuenta(cuenta_actual, None)
             exito, movimientos = cuenta.historial_movimientos(
                 inicio,
                 fin
@@ -419,11 +541,17 @@ def abrir_menu(numero_cuenta):
                     return
 
                 for mov in movimientos:
+
                     fecha = mov.get_fecha().strftime("%d/%m/%Y %H:%M")
+                    if mov.get_servicio() is not None:
+                        tipo = f"Pago de {mov.get_servicio()}"
+
+                    else:
+                        tipo = mov.get_tipo()
                     texto = (
                         f"ID: {mov.get_id_movimiento()}\n"
                         f"Cajero: {mov.get_codigo_cajero()}\n"
-                        f"Tipo: {mov.get_tipo()}\n"
+                        f"Tipo: {tipo}\n"
                         f"Monto: ₡{mov.get_monto()}\n"
                         f"Saldo anterior: ₡{mov.get_saldo_anterior()}\n"
                         f"Saldo resultante: ₡{mov.get_saldo_resultante()}\n"
@@ -431,13 +559,11 @@ def abrir_menu(numero_cuenta):
                     )
 
                     tarjeta = ctk.CTkFrame(frame_resultados)
-
                     tarjeta.pack(
                         fill="x",
                         padx=10,
                         pady=8
                     )
-
 
                     ctk.CTkLabel(
                         tarjeta,
@@ -451,7 +577,6 @@ def abrir_menu(numero_cuenta):
                     )
 
             else:
-
                 messagebox.showerror("Error", movimientos)
 
         ctk.CTkButton(
@@ -477,29 +602,46 @@ def abrir_menu(numero_cuenta):
         monto.pack(pady=10)
 
         def confirmar_pago():
-            monto_pago = monto.get()
-            if monto_pago=="":
 
-                messagebox.showerror("Error","Ingrese un monto")
+            monto_pago = monto.get()
+            if monto_pago == "":
+                messagebox.showerror("Error", "Ingrese un monto")
                 return
-            cuenta = Cuenta(cuenta_actual, None)
-            exito,mensaje = cuenta.pagar_servicio(cajero_actual, servicio, float(monto_pago))
-            
+
+            try:
+                monto_float = float(monto_pago)
+
+            except:
+                messagebox.showerror("Error", "Ingrese un número válido")
+                return
+
+            if monto_float <= 0:
+                messagebox.showerror("Error", "El monto debe ser mayor a 0")
+                return
+
+            cuenta = Cuenta(
+                cuenta_actual,
+                None
+            )
+
+            exito, mensaje = cuenta.pagar_servicio(
+                cajero_actual,
+                servicio,
+                monto_float
+            )
+
             if exito:
+                messagebox.showinfo("Éxito", "Pago realizado correctamente")
 
                 ok, mov = cuenta.obtener_comprobante()
-
                 if ok:
-
                     mostrar_comprobante(mov)
 
-                else:
-
-                    messagebox.showerror("Error", mov)
-                    
             else:
-
-                messagebox.showerror("Error", mensaje)
+                messagebox.showerror(
+                    "Error",
+                    mensaje
+                )
 
         ctk.CTkButton(
             contenido,
@@ -521,10 +663,18 @@ def abrir_menu(numero_cuenta):
 
         pagar_servicio("Internet")
 
-
     def pago_telefono():
 
         pagar_servicio("Telefono")
+
+    def pago_cable():
+
+        pagar_servicio("Cable")
+
+
+    def pago_streaming():
+
+        pagar_servicio("Streaming")
         
     # OPCIONES DEL MENÚ
     cuenta_menu.add_command(
@@ -546,31 +696,64 @@ def abrir_menu(numero_cuenta):
         label="Historial",
         command=historial
     )
+    hogar_menu = TkMenu(servicios_menu, tearoff=0)
 
-    servicios_menu.add_command(
+    servicios_menu.add_cascade(
+        label="Hogar",
+        menu=hogar_menu
+    )
+
+    hogar_menu.add_command(
         label="Agua",
-        command=pago_agua
+        command=lambda: pagar_servicio("Agua")
     )
 
-    servicios_menu.add_command(
+    hogar_menu.add_command(
         label="Electricidad",
-        command=pago_electricidad
+        command=lambda: pagar_servicio("Luz")
     )
 
-    servicios_menu.add_command(
+    telecom_menu = TkMenu(servicios_menu, tearoff=0)
+    
+    servicios_menu.add_cascade(
+        label="Telecomunicaciones",
+        menu=telecom_menu
+    )
+    telecom_menu.add_command(
         label="Internet",
-        command=pago_internet
+        command=lambda: pagar_servicio("Internet")
+    )
+    telecom_menu.add_command(
+        label="Teléfono",
+        command=lambda: pagar_servicio("Telefono")
     )
 
-    servicios_menu.add_command(
-        label="Teléfono",
-        command=pago_telefono
+    Entretenimiento_menu = TkMenu(servicios_menu, tearoff=0)
+
+    servicios_menu.add_cascade(
+        label="Entretenimiento",
+        menu=Entretenimiento_menu
+    )
+    Entretenimiento_menu.add_command(
+        label="Cable",
+        command=lambda: pagar_servicio("Cable")
+    )
+    Entretenimiento_menu.add_command(
+        label="Streaming",
+        command=lambda: pagar_servicio("Streaming")
+    )
+
+    sistema_menu.add_command(
+    label="Cambiar Cajero",
+    command=cambiar_cajero
     )
 
     sistema_menu.add_command(
         label="Salir del sistema",
         command=menu_principal.destroy
     )
+
+    
 
     seleccionar_cajero()
     if __name__ == "__main__":

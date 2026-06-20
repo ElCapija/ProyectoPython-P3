@@ -18,7 +18,7 @@ class Conexion:
 
             conn = pyodbc.connect(
                 "DRIVER={ODBC Driver 18 for SQL Server};"
-                "SERVER=CARLOSPC\\SQLEXPRESS02;"
+                "SERVER=(localdb)\\MSSQLLocalDB;;"
                 "DATABASE=Cajeros;"
                 f"UID={Conexion.usuario_actual};"
                 f"PWD={Conexion.contraseña_actual};"
@@ -28,6 +28,4 @@ class Conexion:
             return conn
 
         except Exception as ex:
-
-            print(ex)
             return None
